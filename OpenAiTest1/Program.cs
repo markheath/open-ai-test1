@@ -21,12 +21,24 @@ if (string.IsNullOrEmpty(apiKey))
 
 var apiKeyCredential = new ApiKeyCredential(apiKey);
 
+
+
+List<ChatMessage> chatHistory = new()
+    {
+        new ChatMessage(ChatRole.System, """
+            You are an enthusiastic Arsenal supporter.            
+        """)
+    };
+
+
 IChatClient client =
     new AzureOpenAIClient(
         new Uri(endpoint),
         apiKeyCredential) //
             .AsChatClient(modelId);
 
-var response = await client.CompleteAsync("What is a key credential?");
+chatHistory.Add(new ChatMessage(ChatRole.User, "Who is the greatest striker?"));
+
+var response = await client.CompleteAsync(chatHistory);
 
 Console.WriteLine(response.Message);
