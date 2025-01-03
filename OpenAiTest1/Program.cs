@@ -31,14 +31,28 @@ List<ChatMessage> chatHistory = new()
     };
 
 
-IChatClient client =
+IChatClient chatClient =
     new AzureOpenAIClient(
         new Uri(endpoint),
         apiKeyCredential) //
             .AsChatClient(modelId);
 
-chatHistory.Add(new ChatMessage(ChatRole.User, "Who is the greatest striker?"));
+while (true)
+{
+    // Get user prompt and add to chat history
+    Console.WriteLine("Your prompt:");
+    var userPrompt = Console.ReadLine();
+    chatHistory.Add(new ChatMessage(ChatRole.User, userPrompt));
 
-var response = await client.CompleteAsync(chatHistory);
-
-Console.WriteLine(response.Message);
+    // Stream the AI response and add to chat history
+    Console.WriteLine("AI Response:");
+    var response = "";
+    await foreach (var item in
+        chatClient.CompleteStreamingAsync(chatHistory))
+    {
+        Console.Write(item.Text);
+        response += item.Text;
+    }
+    chatHistory.Add(new ChatMessage(ChatRole.Assistant, response));
+    Console.WriteLine();
+}
