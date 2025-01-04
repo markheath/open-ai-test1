@@ -22,7 +22,11 @@ if (string.IsNullOrEmpty(apiKey))
 
 var apiKeyCredential = new ApiKeyCredential(apiKey);
 
-
+IChatClient chatClient =
+    new AzureOpenAIClient(
+        new Uri(endpoint),
+        apiKeyCredential) //            
+            .AsChatClient(modelId);
 
 List<ChatMessage> chatHistory = new()
     {
@@ -32,31 +36,9 @@ List<ChatMessage> chatHistory = new()
     };
 
 
-IChatClient chatClient =
-    new AzureOpenAIClient(
-        new Uri(endpoint),
-        apiKeyCredential) //            
-            .AsChatClient(modelId);
-
-var message = new ChatMessage(ChatRole.User, "Can you provide a brief, one-sentence description of this image.");
-//var data = File.ReadAllBytes(@"C:\Users\markh\Downloads\KCC Youth Band Harun Chris Neil Will.jpeg");
-//message.Contents.Add(new ImageContent(data, "image/jpeg"));
-
-message.Contents.Add(new ImageContent(new Uri("https://markheath.net/posts/2022/running-microservices-aca-dapr-2.jpg")));
-chatHistory.Add(message);
-//var resp = await chatClient.CompleteAsync(chatHistory);
-//Console.WriteLine(resp.Message.Text);
-
-Console.WriteLine($"AI Response started at {DateTime.Now}:");
-await foreach (var item in
-    chatClient.CompleteStreamingAsync(chatHistory))
-{
-    Console.Write(item.Text);
-}
-Console.WriteLine($"\nAI Response completed at {DateTime.Now}:");
 
 
-/*
+
 while (true)
 {
     // Get user prompt and add to chat history
@@ -75,4 +57,24 @@ while (true)
     }
     chatHistory.Add(new ChatMessage(ChatRole.Assistant, response));
     Console.WriteLine();
-}*/
+}
+
+async static Task ImageExample(IChatClient chatClient, List<ChatMessage> chatHistory)
+{
+    var message = new ChatMessage(ChatRole.User, "Can you provide a brief, one-sentence description of this image.");
+    //var data = File.ReadAllBytes(@"C:\Users\markh\Downloads\KCC Youth Band Harun Chris Neil Will.jpeg");
+    //message.Contents.Add(new ImageContent(data, "image/jpeg"));
+
+    message.Contents.Add(new ImageContent(new Uri("https://markheath.net/posts/2022/running-microservices-aca-dapr-2.jpg")));
+    chatHistory.Add(message);
+    //var resp = await chatClient.CompleteAsync(chatHistory);
+    //Console.WriteLine(resp.Message.Text);
+
+    Console.WriteLine($"AI Response started at {DateTime.Now}:");
+    await foreach (var item in
+        chatClient.CompleteStreamingAsync(chatHistory))
+    {
+        Console.Write(item.Text);
+    }
+    Console.WriteLine($"\nAI Response completed at {DateTime.Now}:");
+}
