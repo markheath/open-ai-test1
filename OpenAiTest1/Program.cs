@@ -1,12 +1,10 @@
-﻿using Azure;
+﻿// Program.cs
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.ClientModel;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Reflection;
 
 var builder = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
@@ -28,7 +26,7 @@ var apiKeyCredential = new ApiKeyCredential(apiKey);
 IChatClient chatClient =
     new AzureOpenAIClient(
         new Uri(endpoint),
-        apiKeyCredential) //
+        apiKeyCredential)
             .AsChatClient(modelId);
 
 List<ChatMessage> chatHistory = new()
@@ -39,116 +37,50 @@ List<ChatMessage> chatHistory = new()
 };
 await MainMenu();
 
-async Task ChatExample(IChatClient chatClient, List<ChatMessage> chatHistory)
+async Task MainMenu()
 {
+    var examples = LoadExamples();
+
     while (true)
     {
-        // Get user prompt and add to chat history
-        Console.WriteLine("Your prompt:");
-        var userPrompt = Console.ReadLine();
-        chatHistory.Add(new ChatMessage(ChatRole.User, userPrompt));
+        DisplayMenu(examples);
+        var choice = Console.ReadLine();
 
-        var responseMessage = await GetResponse(chatClient, chatHistory);
-        chatHistory.Add(responseMessage);
-        Console.WriteLine();
-    }
-}
-
-async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory)
-{
-    // Stream the AI response and add to chat history
-    Console.WriteLine($"AI Response started at {DateTime.Now}:");
-    var response = "";
-    //var x = await chatClient.CompleteAsync(chatHistory);
-    //a ChatCompletion has Usage
-    UsageDetails? usageDetails = null;
-    await foreach (var item in
-        chatClient.CompleteStreamingAsync(chatHistory))
-    {
-        Console.Write(item.Text);
-        response += item.Text;
-
-        var usage = item.Contents.OfType<UsageContent>().FirstOrDefault()?.Details;
-        if (usage != null) usageDetails = usage;
-    }
-    Console.WriteLine($"\nAI Response completed at {DateTime.Now}:");
-
-    ShowUsageDetails(usageDetails);
-    return new ChatMessage(ChatRole.Assistant, response);
-}
-
-void ShowUsageDetails(UsageDetails? usage)
-{
-    if (usage != null)
-    {
-        Console.WriteLine($"  InputTokenCount: {usage.InputTokenCount}");
-        Console.WriteLine($"  OutputTokenCount: {usage.OutputTokenCount}");
-        Console.WriteLine($"  TotalTokenCount: {usage.TotalTokenCount}");
-        if (usage.AdditionalProperties != null)
+        if (int.TryParse(choice, out int index) && index >= 1 && index <= examples.Count)
         {
-            ShowNestedDictionary(usage.AdditionalProperties!, "    ");
-        }
-    }
-}
-
-void ShowNestedDictionary(IDictionary<string, object> dictionary, string indent)
-{
-    foreach (var (key, value) in dictionary)
-    {
-        if (value is IDictionary<string, object> nestedDictionary)
-        {
-            Console.WriteLine($"{indent}{key}:");
-            ShowNestedDictionary(nestedDictionary, indent + "    ");
+            var example = examples[index - 1];
+            await example.RunAsync(chatClient, chatHistory);
         }
         else
         {
-            Console.WriteLine($"{indent}{key}: {value}");
+            Console.WriteLine("Invalid choice. Please try again.");
         }
     }
 }
 
-async Task ImageExample(IChatClient chatClient, List<ChatMessage> chatHistory)
+List<IExample> LoadExamples()
 {
-    var message = new ChatMessage(ChatRole.User, "Can you provide a brief, one-sentence description of this image.");
-    message.Contents.Add(new ImageContent(new Uri("https://markheath.net/posts/2022/running-microservices-aca-dapr-2.jpg")));
-    chatHistory.Add(message);
+    var examples = new List<IExample>();
+    var types = Assembly.GetExecutingAssembly().GetTypes()
+        .Where(t => typeof(IExample).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
-    Console.WriteLine($"AI Response started at {DateTime.Now}:");
-    await foreach (var item in
-        chatClient.CompleteStreamingAsync(chatHistory))
+    foreach (var type in types)
     {
-        Console.Write(item.Text);
+        if (Activator.CreateInstance(type) is IExample example)
+        {
+            examples.Add(example);
+        }
     }
-    Console.WriteLine($"\nAI Response completed at {DateTime.Now}:");
+
+    return examples;
 }
 
-void DisplayMenu()
+void DisplayMenu(List<IExample> examples)
 {
     Console.WriteLine("Select an example to run:");
-    Console.WriteLine("1. Chat Example");
-    Console.WriteLine("2. Image Example");
+    for (int i = 0; i < examples.Count; i++)
+    {
+        Console.WriteLine($"{i + 1}. {examples[i].Name}");
+    }
     Console.WriteLine("Enter the number of your choice:");
 }
-
-async Task MainMenu()
-{
-    while (true)
-    {
-        DisplayMenu();
-        var choice = Console.ReadLine();
-
-        switch (choice)
-        {
-            case "1":
-                await ChatExample(chatClient, chatHistory);
-                break;
-            case "2":
-                await ImageExample(chatClient, chatHistory);
-                break;
-            default:
-                Console.WriteLine("Invalid choice. Please try again.");
-                break;
-        }
-    }
-}
-
