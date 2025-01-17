@@ -4,13 +4,13 @@ namespace OpenAiTest1;
 
 internal class ResponseHelper
 {
-    public static async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory)
+    public static async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory, ChatOptions options = null)
     {
         Console.WriteLine($"AI Response started at {DateTime.Now}:");
         var response = "";
         UsageDetails? usageDetails = null;
 
-        await foreach (var item in chatClient.CompleteStreamingAsync(chatHistory))
+        await foreach (var item in chatClient.CompleteStreamingAsync(chatHistory, options))
         {
             Console.Write(item.Text);
             response += item.Text;
@@ -31,26 +31,16 @@ internal class ResponseHelper
             Console.WriteLine($"  InputTokenCount: {usage.InputTokenCount}");
             Console.WriteLine($"  OutputTokenCount: {usage.OutputTokenCount}");
             Console.WriteLine($"  TotalTokenCount: {usage.TotalTokenCount}");
-            if (usage.AdditionalProperties != null)
+            
+            if (usage.AdditionalCounts != null)
             {
-                ShowNestedDictionary(usage.AdditionalProperties!, "    ");
+                foreach(var additionalCount in usage.AdditionalCounts)
+                {
+                    Console.WriteLine($"  {additionalCount.Key}: {additionalCount.Value}");
+                }
+
             }
         }
     }
 
-    private static void ShowNestedDictionary(IDictionary<string, object> dictionary, string indent)
-    {
-        foreach (var (key, value) in dictionary)
-        {
-            if (value is IDictionary<string, object> nestedDictionary)
-            {
-                Console.WriteLine($"{indent}{key}:");
-                ShowNestedDictionary(nestedDictionary, indent + "    ");
-            }
-            else
-            {
-                Console.WriteLine($"{indent}{key}: {value}");
-            }
-        }
-    }
 }

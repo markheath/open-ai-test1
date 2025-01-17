@@ -23,11 +23,15 @@ if (string.IsNullOrEmpty(apiKey))
 
 var apiKeyCredential = new ApiKeyCredential(apiKey);
 
+var innerClient = new AzureOpenAIClient(
+            new Uri(endpoint),
+            apiKeyCredential)
+                .AsChatClient(modelId);
+
 IChatClient chatClient =
-    new AzureOpenAIClient(
-        new Uri(endpoint),
-        apiKeyCredential)
-            .AsChatClient(modelId);
+    new ChatClientBuilder(innerClient)
+        .UseFunctionInvocation()
+        .Build();
 
 List<ChatMessage> chatHistory = new()
 {
