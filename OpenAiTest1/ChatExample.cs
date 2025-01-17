@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.AI;
-using OpenAiTest1;
+
+namespace OpenAiTest1;
 
 public class ChatExample : IExample
 {

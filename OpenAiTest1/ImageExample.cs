@@ -1,6 +1,5 @@
 using Microsoft.Extensions.AI;
-using OpenAiTest1;
-
+namespace OpenAiTest1;
 public class ImageExample : IExample
 {
     public string Name => "Image Example";
