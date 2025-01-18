@@ -4,7 +4,7 @@ namespace OpenAiTest1;
 
 internal class ResponseHelper
 {
-    public static async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory, ChatOptions options = null)
+    public static async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory, ChatOptions? options = null)
     {
         Console.WriteLine($"AI Response started at {DateTime.Now}:");
         var response = "";

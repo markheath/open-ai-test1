@@ -13,22 +13,12 @@ public class ToolExample : IExample
             Tools = new List<AITool>
             {
                 AIFunctionFactory.Create(
-                    (string userId) =>
-                    {
-                        // Simulate fetching recent orders for the user
-                        var orders = GetRecentOrders(userId);
-                        return orders;
-                    },
+                    (string userId) => GetRecentOrders(userId),
                     "get_recent_orders",
                     "Retrieve the recent orders of a user by their user ID."
                 ),
                 AIFunctionFactory.Create(
-                    (string orderNumber) =>
-                    {
-                        // Simulate refunding an order
-                        var result = RefundOrder(orderNumber);
-                        return result;
-                    },
+                    (string orderNumber) => RefundOrder(orderNumber),
                     "refund_order",
                     "Refund a specific order by its order number."
                 )
