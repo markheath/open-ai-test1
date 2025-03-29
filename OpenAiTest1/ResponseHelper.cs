@@ -10,7 +10,7 @@ internal class ResponseHelper
         var response = "";
         UsageDetails? usageDetails = null;
 
-        await foreach (var item in chatClient.CompleteStreamingAsync(chatHistory, options))
+        await foreach (var item in chatClient.GetStreamingResponseAsync(chatHistory, options))
         {
             Console.Write(item.Text);
             response += item.Text;

@@ -52,23 +52,23 @@ public class ToolExample : IExample
         // Placeholder for fetching orders from a database or service
         if (userId == "12345")
         {
-            return new List<Order>
-            {
-                new Order { OrderNumber = "A123", Items = new List<string> { "Laptop", "Mouse" } },
-                new Order { OrderNumber = "B456", Items = new List<string> { "Smartphone" } }
-            };
+            return
+            [
+                new Order { OrderNumber = "A123", Items = ["Laptop", "Mouse"] },
+                new Order { OrderNumber = "B456", Items = ["Smartphone"] }
+            ];
         }
         else if (userId == "23456")
         {
-            return new List<Order>
-            {
-                new Order { OrderNumber = "C234", Items = new List<string> { "Kettle", "Toaster" } },
-                new Order { OrderNumber = "D567", Items = new List<string> { "Dishwasher" } }
-            };
+            return
+            [
+                new Order { OrderNumber = "C234", Items = ["Kettle", "Toaster"] },
+                new Order { OrderNumber = "D567", Items = ["Dishwasher"] }
+            ];
         }
         else
         {
-            return new List<Order>();
+            return [];
         }
 
     }
@@ -82,7 +82,7 @@ public class ToolExample : IExample
 
     private class Order
     {
-        public string OrderNumber { get; set; }
-        public List<string> Items { get; set; }
+        public required string OrderNumber { get; set; }
+        public required List<string> Items { get; set; }
     }
 }
