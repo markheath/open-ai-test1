@@ -32,11 +32,10 @@ public class ToolExample : IExample
             You are chatting with user '12345'. How can I help you today?
             """);
 
-        Console.WriteLine("How can I help you today?");
+        Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, "How can I help you today?");
         while (true)
         {
-            Console.Write("Your prompt:");
-            var userPrompt = Console.ReadLine();
+            var userPrompt = Utils.GetUserPrompt();
             if (string.IsNullOrEmpty(userPrompt)) break;
 
             chatHistory.Add(new ChatMessage(ChatRole.User, userPrompt));
@@ -48,7 +47,7 @@ public class ToolExample : IExample
 
     private List<Order> GetRecentOrders(string userId)
     {
-        Console.WriteLine($"\nTOOL FETCHED ORDERS FOR {userId}");
+        Utils.ColorConsoleWriteLine(ConsoleColor.Blue, $"\nTOOL FETCHED ORDERS FOR {userId}");
         // Placeholder for fetching orders from a database or service
         if (userId == "12345")
         {
@@ -75,7 +74,7 @@ public class ToolExample : IExample
 
     private string RefundOrder(string orderNumber)
     {
-        Console.WriteLine($"\nTOOL REFUNDED ORDER FOR {orderNumber}");
+        Utils.ColorConsoleWriteLine(ConsoleColor.Blue, $"\nTOOL REFUNDED ORDER FOR {orderNumber}");
         // Placeholder for refunding an order
         return $"Order {orderNumber} has been successfully refunded.";
     }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using System.ClientModel;
 using System.Reflection;
+using OpenAiTest1;
 
 var builder = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
@@ -49,7 +50,7 @@ async Task MainMenu()
     {
         DisplayMenu(examples);
         var choice = Console.ReadLine();
-
+        if (string.IsNullOrEmpty(choice)) break;
         if (int.TryParse(choice, out int index) && index >= 1 && index <= examples.Count)
         {
             var example = examples[index - 1];
@@ -57,7 +58,8 @@ async Task MainMenu()
         }
         else
         {
-            Console.WriteLine("Invalid choice. Please try again.");
+
+            Utils.ColorConsoleWriteLine(ConsoleColor.Red, "Invalid choice. Please try again.");
         }
     }
 }
@@ -81,10 +83,10 @@ List<IExample> LoadExamples()
 
 void DisplayMenu(List<IExample> examples)
 {
-    Console.WriteLine("Select an example to run:");
+    Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, "Select an example to run:");
     for (int i = 0; i < examples.Count; i++)
     {
-        Console.WriteLine($"{i + 1}. {examples[i].Name}");
+        Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, $"{i + 1}. {examples[i].Name}");
     }
-    Console.WriteLine("Enter the number of your choice:");
+    Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, "Enter the number of your choice:");
 }

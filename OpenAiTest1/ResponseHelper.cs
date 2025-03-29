@@ -6,19 +6,19 @@ internal class ResponseHelper
 {
     public static async Task<ChatMessage> GetResponse(IChatClient chatClient, List<ChatMessage> chatHistory, ChatOptions? options = null)
     {
-        Console.WriteLine($"AI Response started at {DateTime.Now}:");
+        Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, $"AI Response started at {DateTime.Now}:");
         var response = "";
         UsageDetails? usageDetails = null;
 
         await foreach (var item in chatClient.GetStreamingResponseAsync(chatHistory, options))
         {
-            Console.Write(item.Text);
+            Utils.ColorConsoleWrite(ConsoleColor.Cyan, item.Text);
             response += item.Text;
 
             var usage = item.Contents.OfType<UsageContent>().FirstOrDefault()?.Details;
             if (usage != null) usageDetails = usage;
         }
-        Console.WriteLine($"\nAI Response completed at {DateTime.Now}:");
+        Utils.ColorConsoleWriteLine(ConsoleColor.DarkGray, $"\nAI Response completed at {DateTime.Now}:");
 
         ShowUsageDetails(usageDetails);
         return new ChatMessage(ChatRole.Assistant, response);

@@ -10,8 +10,7 @@ public class ChatExample : IExample
     {
         while (true)
         {
-            Console.WriteLine("Your prompt:");
-            var userPrompt = Console.ReadLine();
+            string? userPrompt = Utils.GetUserPrompt();
             if (string.IsNullOrEmpty(userPrompt)) break;
 
             chatHistory.Add(new ChatMessage(ChatRole.User, userPrompt));
@@ -21,6 +20,4 @@ public class ChatExample : IExample
             Console.WriteLine();
         }
     }
-
-
 }
